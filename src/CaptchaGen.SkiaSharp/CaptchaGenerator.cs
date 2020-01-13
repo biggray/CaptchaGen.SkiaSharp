@@ -12,6 +12,7 @@ namespace CaptchaGen.SkiaSharp
 
         protected SKColor PaintColor { get; set; }
         protected SKColor BackgroundColor { get; set; }
+        protected SKColor NoisePointColor { get; set; }
 
         protected int ImageWidth { get; set; }
         protected int ImageHeight { get; set; }
@@ -23,13 +24,13 @@ namespace CaptchaGen.SkiaSharp
         protected Func<IEnumerable<(int x, int y)>> NoisePointMapGenFunc { get; set; }
 
         public CaptchaGenerator(
-            string paintColorHex = "#808080", string backgroundColorHex = "#F5DEB3",
+            string paintColorHex = "#808080", string backgroundColorHex = "#F5DEB3", string noisePointColorHex = "#D3D3D3",
             int imageWidth = 120, int imageHeight = 48,
             string fontName = null, int fontSize = 20,
             bool enableDistortion = true, int minDistortion = 5, int maxDistortion = 15,
             bool enableNoisePoints = true, double noisePointsPercent = 0.05
         ) : this(
-            SKColor.Parse(paintColorHex), SKColor.Parse(backgroundColorHex),
+            SKColor.Parse(paintColorHex), SKColor.Parse(backgroundColorHex), SKColor.Parse(noisePointColorHex),
             imageWidth, imageHeight,
             fontName, fontSize,
             enableDistortion, minDistortion, maxDistortion,
@@ -40,12 +41,12 @@ namespace CaptchaGen.SkiaSharp
         }
 
         public CaptchaGenerator(
-            SKColor paintColor, SKColor backgroundColor,
+            SKColor paintColor, SKColor backgroundColor, SKColor noisePointColor,
             int imageWidth = 120, int imageHeight = 48,
             string fontName = null, int fontSize = 20,
             bool enableDistortion = true, int minDistortion = 5, int maxDistortion = 15,
             bool enableNoisePoints = true, double noisePointsPercent = 0.05
-        ) : this(paintColor, backgroundColor, imageWidth, imageHeight, fontName, fontSize, null, null)
+        ) : this(paintColor, backgroundColor, noisePointColor, imageWidth, imageHeight, fontName, fontSize, null, null)
         {
             if (enableDistortion)
                 DistortionFunc =
@@ -79,7 +80,7 @@ namespace CaptchaGen.SkiaSharp
         }
 
         public CaptchaGenerator(
-            SKColor paintColor, SKColor backgroundColor,
+            SKColor paintColor, SKColor backgroundColor, SKColor noisePointColor,
             int imageWidth = 120, int imageHeight = 48,
             string fontName = null, int fontSize = 20,
             Func<(int oldX, int oldY), (int newX, int newY)> distortionFunc = null,
@@ -88,6 +89,7 @@ namespace CaptchaGen.SkiaSharp
         {
             PaintColor = paintColor;
             BackgroundColor = backgroundColor;
+            NoisePointColor = noisePointColor;
 
             ImageWidth = imageWidth;
             ImageHeight = imageHeight;
@@ -164,7 +166,7 @@ namespace CaptchaGen.SkiaSharp
                         for (var i = 0; i < noisePointMap.Count(); i++)
                         {
                             var noisePointPos = noisePointMap.ElementAt(i);
-                            captchaCanvas.DrawPoint(noisePointPos.x, noisePointPos.y, SKColors.LightGray);
+                            captchaCanvas.DrawPoint(noisePointPos.x, noisePointPos.y, NoisePointColor);
                         }
                     }
 
