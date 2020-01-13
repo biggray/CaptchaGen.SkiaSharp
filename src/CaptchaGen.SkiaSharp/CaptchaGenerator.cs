@@ -153,9 +153,9 @@ namespace CaptchaGen.SkiaSharp
                             for (int y = 0; y < ImageHeight; y++)
                             {
                                 var (newX, newY) = DistortionFunc((x, y));
-                                var originalPixel = plainPixmap.GetPixelColor(x, y);
+                                var originalPixel = plainPixmap.GetPixelColor(newX, newY);
 
-                                captchaCanvas.DrawPoint(newX, newY, originalPixel);
+                                captchaCanvas.DrawPoint(x, y, originalPixel);
                             }
                         }
                     }
