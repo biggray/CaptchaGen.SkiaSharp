@@ -20,14 +20,16 @@ namespace CaptchaGen.SkiaSharp
         protected string FontName { get; set; }
         protected int FontSize { get; set; }
 
-        protected Func<(int oldX, int oldY), (int newX, int newY)> DistortionFunc { get; set; }
+        protected double MinDistortion { get; set; }
+        protected double MaxDistortion { get; set; }
+        protected Func<(int oldX, int oldY, double distortionLevel), (int newX, int newY)> DistortionFunc { get; set; }
         protected Func<IEnumerable<(int x, int y)>> NoisePointMapGenFunc { get; set; }
 
         public CaptchaGenerator(
             string paintColorHex = "#808080", string backgroundColorHex = "#F5DEB3", string noisePointColorHex = "#D3D3D3",
             int imageWidth = 120, int imageHeight = 48,
             string fontName = null, int fontSize = 20,
-            bool enableDistortion = true, int minDistortion = 5, int maxDistortion = 15,
+            bool enableDistortion = true, double minDistortion = 5, double maxDistortion = 15,
             bool enableNoisePoints = true, double noisePointsPercent = 0.05
         ) : this(
             SKColor.Parse(paintColorHex), SKColor.Parse(backgroundColorHex), SKColor.Parse(noisePointColorHex),
@@ -44,18 +46,19 @@ namespace CaptchaGen.SkiaSharp
             SKColor paintColor, SKColor backgroundColor, SKColor noisePointColor,
             int imageWidth = 120, int imageHeight = 48,
             string fontName = null, int fontSize = 20,
-            bool enableDistortion = true, int minDistortion = 5, int maxDistortion = 15,
+            bool enableDistortion = true, double minDistortion = 5, double maxDistortion = 15,
             bool enableNoisePoints = true, double noisePointsPercent = 0.05
         ) : this(paintColor, backgroundColor, noisePointColor, imageWidth, imageHeight, fontName, fontSize, null, null)
         {
+            MinDistortion = minDistortion;
+            MaxDistortion = maxDistortion;
+
             if (enableDistortion)
                 DistortionFunc =
                     oldPos =>
                         {
-                            var randomDistortion = minDistortion + (maxDistortion - minDistortion) * RandomGen.NextDouble();
-                            if (RandomGen.NextDouble() > 0.5) randomDistortion *= -1;
-                            var newX = (int)(oldPos.oldX + (randomDistortion * Math.Sin(Math.PI * oldPos.oldY / 64.0)));
-                            var newY = (int)(oldPos.oldY + (randomDistortion * Math.Cos(Math.PI * oldPos.oldX / 64.0)));
+                            var newX = (int)(oldPos.oldX + (oldPos.distortionLevel * Math.Sin(Math.PI * oldPos.oldY / 64.0)));
+                            var newY = (int)(oldPos.oldY + (oldPos.distortionLevel * Math.Cos(Math.PI * oldPos.oldX / 64.0)));
                             if (newX < 0 || newX >= imageWidth) newX = 0;
                             if (newY < 0 || newY >= imageHeight) newY = 0;
 
@@ -83,7 +86,7 @@ namespace CaptchaGen.SkiaSharp
             SKColor paintColor, SKColor backgroundColor, SKColor noisePointColor,
             int imageWidth = 120, int imageHeight = 48,
             string fontName = null, int fontSize = 20,
-            Func<(int oldX, int oldY), (int newX, int newY)> distortionFunc = null,
+            Func<(int oldX, int oldY, double distortionLevel), (int newX, int newY)> distortionFunc = null,
             Func<IEnumerable<(int x, int y)>> noisePointMapGenFunc = null
         )
         {
@@ -148,11 +151,13 @@ namespace CaptchaGen.SkiaSharp
                     if (null != DistortionFunc)
                     {
                         var plainPixmap = plainSkSurface.PeekPixels();
+                        var distortionLevel = MinDistortion + (MaxDistortion - MinDistortion) * RandomGen.NextDouble();
+                        if (RandomGen.NextDouble() > 0.5) distortionLevel *= -1;
                         for (int x = 0; x < ImageWidth; x++)
                         {
                             for (int y = 0; y < ImageHeight; y++)
                             {
-                                var (newX, newY) = DistortionFunc((x, y));
+                                var (newX, newY) = DistortionFunc((x, y, distortionLevel));
                                 var originalPixel = plainPixmap.GetPixelColor(newX, newY);
 
                                 captchaCanvas.DrawPoint(x, y, originalPixel);
