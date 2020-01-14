@@ -148,20 +148,21 @@ namespace CaptchaGen.SkiaSharp
                 {
                     var captchaCanvas = captchaSkSurface.Canvas;
 
+                    double distortionLevel = 0;
                     if (null != DistortionFunc)
                     {
-                        var plainPixmap = plainSkSurface.PeekPixels();
-                        var distortionLevel = MinDistortion + (MaxDistortion - MinDistortion) * RandomGen.NextDouble();
+                        distortionLevel = MinDistortion + (MaxDistortion - MinDistortion) * RandomGen.NextDouble();
                         if (RandomGen.NextDouble() > 0.5) distortionLevel *= -1;
-                        for (int x = 0; x < ImageWidth; x++)
+                    }
+                    var plainPixmap = plainSkSurface.PeekPixels();
+                    for (int x = 0; x < ImageWidth; x++)
+                    {
+                        for (int y = 0; y < ImageHeight; y++)
                         {
-                            for (int y = 0; y < ImageHeight; y++)
-                            {
-                                var (newX, newY) = DistortionFunc((x, y, distortionLevel));
-                                var originalPixel = plainPixmap.GetPixelColor(newX, newY);
+                            var (newX, newY) = null == DistortionFunc ? (x, y) : DistortionFunc((x, y, distortionLevel));
+                            var originalPixel = plainPixmap.GetPixelColor(newX, newY);
 
-                                captchaCanvas.DrawPoint(x, y, originalPixel);
-                            }
+                            captchaCanvas.DrawPoint(x, y, originalPixel);
                         }
                     }
 
