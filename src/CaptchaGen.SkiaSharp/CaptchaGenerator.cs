@@ -54,8 +54,8 @@ namespace CaptchaGen.SkiaSharp
                         {
                             var randomDistortion = minDistortion + (maxDistortion - minDistortion) * RandomGen.NextDouble();
                             if (RandomGen.NextDouble() > 0.5) randomDistortion *= -1;
-                            var newX = (int)(oldPos.oldX + (randomDistortion * Math.Sin(Math.PI * oldPos.oldX / 64.0)));
-                            var newY = (int)(oldPos.oldY + (randomDistortion * Math.Cos(Math.PI * oldPos.oldY / 64.0)));
+                            var newX = (int)(oldPos.oldX + (randomDistortion * Math.Sin(Math.PI * oldPos.oldY / 64.0)));
+                            var newY = (int)(oldPos.oldY + (randomDistortion * Math.Cos(Math.PI * oldPos.oldX / 64.0)));
                             if (newX < 0 || newX >= imageWidth) newX = 0;
                             if (newY < 0 || newY >= imageHeight) newY = 0;
 
