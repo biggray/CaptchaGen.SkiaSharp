@@ -8,8 +8,6 @@ namespace CaptchaGen.SkiaSharp
 {
     public class CaptchaGenerator : ICaptchaGenerator
     {
-        protected static Random RandomGen { get; set; } = new Random();
-
         protected SKColor PaintColor { get; set; }
         protected SKColor BackgroundColor { get; set; }
         protected SKColor NoisePointColor { get; set; }
@@ -69,13 +67,14 @@ namespace CaptchaGen.SkiaSharp
                 NoisePointMapGenFunc =
                     () =>
                         {
+                            var random = new Random();
                             var noisePointCount = (int)(imageWidth * imageHeight * noisePointsPercent);
                             var noisePointPosList = Enumerable.Range(0, noisePointCount)
                                 .Select(
                                     x =>
                                         (
-                                            RandomGen.Next(imageWidth),
-                                            RandomGen.Next(imageHeight)
+                                            random.Next(imageWidth),
+                                            random.Next(imageHeight)
                                         )
                                 ).ToArray();
                             return noisePointPosList;
@@ -151,8 +150,9 @@ namespace CaptchaGen.SkiaSharp
                     double distortionLevel = 0;
                     if (null != DistortionFunc)
                     {
-                        distortionLevel = MinDistortion + (MaxDistortion - MinDistortion) * RandomGen.NextDouble();
-                        if (RandomGen.NextDouble() > 0.5) distortionLevel *= -1;
+                        var random = new Random();
+                        distortionLevel = MinDistortion + (MaxDistortion - MinDistortion) * random.NextDouble();
+                        if (random.NextDouble() > 0.5) distortionLevel *= -1;
                     }
                     var plainPixmap = plainSkSurface.PeekPixels();
                     for (int x = 0; x < ImageWidth; x++)
