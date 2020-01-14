@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <PackageId>CaptchaGen.SkiaSharp</PackageId>
-    <Version>1.0.4</Version>
+    <Version>1.0.5</Version>
     <Authors>biggray</Authors>
     <Company>biggray</Company>
     <PackageDescription>A captcha generator derived from project vishnuprasadv/CaptchaGen.</PackageDescription>
